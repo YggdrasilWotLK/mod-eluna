@@ -458,6 +458,12 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
     return first.filepath < second.filepath;
 }
 
+std::string GetThreadIdAsString() {
+    std::stringstream ss;
+    ss << std::this_thread::get_id();
+    return ss.str();
+}
+
 void Eluna::RunScripts()
 {
     LOCK_ELUNA;
@@ -501,6 +507,8 @@ void Eluna::RunScripts()
         lua_pop(L, 1);
         // Stack: package, modules
 
+        ELUNA_LOG_INFO("[Eluna]: Loading script {} on thread: {}", it->filepath.c_str(), GetThreadIdAsString().c_str());
+
         if (luaL_loadfile(L, it->filepath.c_str()))
         {
             // Stack: package, modules, errmsg
@@ -524,14 +532,14 @@ void Eluna::RunScripts()
             // Stack: package, modules
 
             // successfully loaded and ran file
-            ELUNA_LOG_DEBUG("[Eluna]: Successfully loaded `{}`", it->filepath);
+            ELUNA_LOG_INFO("[Eluna]: Successfully loaded script {} on thread: {}", it->filepath.c_str(), GetThreadIdAsString().c_str());
             ++count;
             continue;
         }
     }
     // Stack: package, modules
     lua_pop(L, 2);
-    ELUNA_LOG_INFO("[Eluna]: Executed {} Lua scripts in {} ms", count, ElunaUtil::GetTimeDiff(oldMSTime));
+    ELUNA_LOG_INFO("[Eluna]: Executed {} Lua scripts in {} ms on thread: {}", count, ElunaUtil::GetTimeDiff(oldMSTime), GetThreadIdAsString().c_str());
 
     OnLuaStateOpen();
 }
