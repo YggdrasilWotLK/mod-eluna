@@ -49,7 +49,14 @@ namespace LuaPlayer
         Eluna::Push(L, player->HasTalent(spellId, spec));
         return 1;
     }
+    
+    int QueueWardenPayload(lua_State* L, Player* player)
+    {
+        player->GetSession()->QueueWardenPayload();
 
+        return 0;
+    }
+    
     /**
      * Returns `true` if the [Player] has completed the specified achievement, `false` otherwise.
      *
