@@ -92,7 +92,7 @@ public:
 	void DecrementCallbacks() 
 	{ 
 		pendingCallbacks--; 
-		if (pendingCallbacks == 0 && reloadRequested)
+		if (pendingCallbacks == 0 && reloadScheduled)
 			_ReloadEluna();
 	}
     bool CanReload() const { return pendingCallbacks == 0; }
