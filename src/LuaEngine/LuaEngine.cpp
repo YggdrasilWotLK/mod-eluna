@@ -127,23 +127,23 @@ void Eluna::_ReloadEluna()
     LOCK_ELUNA;
     ASSERT(IsInitialized());
 
-    if (!CanReload())
+    if (!sEluna->CanReload())
     {
         // Only schedule one retry
-        if (!reloadScheduled)
+        if (!sEluna->reloadScheduled)
         {
-            reloadScheduled = true;
+            sEluna->reloadScheduled = true;
             
             std::thread([this]() {
                 // Wait until callbacks are done
-                while (pendingCallbacks > 0)
+                while (sEluna->pendingCallbacks > 0)
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
                 
                 // Now safe to reload
                 LOCK_ELUNA;
-                reloadScheduled = false;
+                sEluna->reloadScheduled = false;
                 _ReloadEluna();
             }).detach();
         }
