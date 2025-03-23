@@ -127,6 +127,29 @@ void Eluna::_ReloadEluna()
     LOCK_ELUNA;
     ASSERT(IsInitialized());
 
+    if (!CanReload())
+    {
+        // Only schedule one retry
+        if (!reloadScheduled)
+        {
+            reloadScheduled = true;
+            
+            std::thread([this]() {
+                // Wait until callbacks are done
+                while (pendingCallbacks > 0)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+                
+                // Now safe to reload
+                LOCK_ELUNA;
+                reloadScheduled = false;
+                _ReloadEluna();
+            }).detach();
+        }
+        return;
+    }
+    
     if (eConfigMgr->GetOption<bool>("Eluna.PlayerAnnounceReload", false))
         eWorldSessionMgr->SendServerMessage(SERVER_MSG_STRING, "Reloading Eluna...");
     else
