@@ -134,7 +134,7 @@ void Eluna::_ReloadEluna()
         {
             sEluna->reloadScheduled = true;
             
-            std::thread([this]() {
+            std::thread([]() {
                 // Wait until callbacks are done
                 while (sEluna->pendingCallbacks > 0)
                 {
@@ -144,7 +144,7 @@ void Eluna::_ReloadEluna()
                 // Now safe to reload
                 LOCK_ELUNA;
                 sEluna->reloadScheduled = false;
-                _ReloadEluna();
+                sEluna->_ReloadEluna();
             }).detach();
         }
         return;
