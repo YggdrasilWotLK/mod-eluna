@@ -174,7 +174,7 @@ namespace LuaPacket
     }
 
     /**
-     * Reads and returns an unsigned 2-bit integer value from the [WorldPacket].
+     * Reads and returns an unsigned 16-bit integer value from the [WorldPacket].
      *
      * @return Packed ObjectGuid value : value returned as string
      */
