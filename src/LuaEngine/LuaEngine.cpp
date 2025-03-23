@@ -129,24 +129,7 @@ void Eluna::_ReloadEluna()
 
     if (!sEluna->CanReload())
     {
-        // Only schedule one retry
-        if (!sEluna->reloadScheduled)
-        {
-            sEluna->reloadScheduled = true;
-            
-            std::thread([]() {
-                // Wait until callbacks are done
-                while (sEluna->pendingCallbacks > 0)
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
-                
-                // Now safe to reload
-                LOCK_ELUNA;
-                sEluna->reloadScheduled = false;
-                sEluna->_ReloadEluna();
-            }).detach();
-        }
+        sEluna->reloadScheduled = true;
         return;
     }
     
@@ -170,6 +153,7 @@ void Eluna::_ReloadEluna()
     // Run scripts from laoded paths
     sEluna->RunScripts();
 
+	sEluna->reloadScheduled = false;
     reload = false;
 }
 

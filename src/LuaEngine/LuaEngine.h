@@ -89,7 +89,12 @@ class ELUNA_GAME_API Eluna
 {
 public:
     void IncrementCallbacks() { pendingCallbacks++; }
-    void DecrementCallbacks() { pendingCallbacks--; }
+	void DecrementCallbacks() 
+	{ 
+		pendingCallbacks--; 
+		if (pendingCallbacks == 0 && reloadRequested)
+			_ReloadEluna();
+	}
     bool CanReload() const { return pendingCallbacks == 0; }
     typedef std::list<LuaScript> ScriptList;
 
