@@ -742,36 +742,35 @@ namespace LuaWorldObject
      * @param uint32 repeats = 1 : how many times for the event to repeat, 0 is infinite
      * @return int eventId : unique ID for the timed event used to cancel it or nil
      */
-    int RegisterEvent(lua_State* L, WorldObject* obj)
-    {
-        luaL_checktype(L, 2, LUA_TFUNCTION);
-        uint32 min, max;
-        if (lua_istable(L, 3))
-        {
-            Eluna::Push(L, 1);
-            lua_gettable(L, 3);
-            min = Eluna::CHECKVAL<uint32>(L, -1);
-            Eluna::Push(L, 2);
-            lua_gettable(L, 3);
-            max = Eluna::CHECKVAL<uint32>(L, -1);
-            lua_pop(L, 2);
-        }
-        else
-            min = max = Eluna::CHECKVAL<uint32>(L, 3);
-        uint32 repeats = Eluna::CHECKVAL<uint32>(L, 4, 1);
+	int RegisterEvent(lua_State* L, WorldObject* obj)
+	{
+		luaL_checktype(L, 2, LUA_TFUNCTION);
+		uint32 min, max;
+		if (lua_istable(L, 3))
+		{
+			lua_rawgeti(L, 3, 1); // Use lua_rawgeti instead of Push+gettable
+			min = Eluna::CHECKVAL<uint32>(L, -1);
+			lua_rawgeti(L, 3, 2);
+			max = Eluna::CHECKVAL<uint32>(L, -1);
+			lua_pop(L, 2);
+		}
+		else
+			min = max = Eluna::CHECKVAL<uint32>(L, 3);
+		uint32 repeats = Eluna::CHECKVAL<uint32>(L, 4, 1);
 
-        if (min > max)
-            return luaL_argerror(L, 3, "min is bigger than max delay");
+		if (min > max)
+			return luaL_argerror(L, 3, "min is bigger than max delay");
 
-        lua_pushvalue(L, 2);
-        int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
-        if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
-        {
-            obj->elunaEvents->AddEvent(functionRef, min, max, repeats);
-            Eluna::Push(L, functionRef);
-        }
-        return 1;
-    }
+		lua_pushvalue(L, 2);
+		int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
+		if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
+		{
+			obj->elunaEvents->AddEvent(functionRef, min, max, repeats);
+			Eluna::Push(L, functionRef);
+			return 1;
+		}
+		return 0; // No value left on stack if reference is invalid
+	}
 
     /**
      * Removes the timed event from a [WorldObject] by the specified event ID

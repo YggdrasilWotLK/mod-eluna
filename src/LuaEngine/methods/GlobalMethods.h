@@ -544,20 +544,24 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-    static int RegisterEventHelper(lua_State* L, int regtype)
-    {
-        uint32 ev = Eluna::CHECKVAL<uint32>(L, 1);
-        luaL_checktype(L, 2, LUA_TFUNCTION);
-        uint32 shots = Eluna::CHECKVAL<uint32>(L, 3, 0);
-
-        lua_pushvalue(L, 2);
-        int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
-        if (functionRef >= 0)
-            return Eluna::GetEluna(L)->Register(L, regtype, 0, ObjectGuid(), 0, ev, functionRef, shots);
-        else
-            luaL_argerror(L, 2, "unable to make a ref to function");
-        return 0;
-    }
+	static int RegisterEventHelper(lua_State* L, int regtype)
+	{
+		uint32 ev = Eluna::CHECKVAL<uint32>(L, 1);
+		luaL_checktype(L, 2, LUA_TFUNCTION);
+		uint32 shots = Eluna::CHECKVAL<uint32>(L, 3, 0);
+		lua_pushvalue(L, 2);
+		int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
+		if (functionRef >= 0)
+		{
+			// Pass through the result (callback) from Register
+			return Eluna::GetEluna(L)->Register(L, regtype, 0, ObjectGuid(), 0, ev, functionRef, shots);
+		}
+		else
+		{
+			luaL_argerror(L, 2, "unable to make a ref to function");
+			return 0; // This never executes due to luaL_argerror, but keeps compiler happy
+		}
+	}
 
     static int RegisterUniqueHelper(lua_State* L, int regtype)
     {
@@ -1587,36 +1591,35 @@ namespace LuaGlobalFunctions
      * @param uint32 repeats = 1 : how many times for the event to repeat, 0 is infinite
      * @return int eventId : unique ID for the timed event used to cancel it or nil
      */
-    int CreateLuaEvent(lua_State* L)
-    {
-        luaL_checktype(L, 1, LUA_TFUNCTION);
-        uint32 min, max;
-        if (lua_istable(L, 2))
-        {
-            Eluna::Push(L, 1);
-            lua_gettable(L, 2);
-            min = Eluna::CHECKVAL<uint32>(L, -1);
-            Eluna::Push(L, 2);
-            lua_gettable(L, 2);
-            max = Eluna::CHECKVAL<uint32>(L, -1);
-            lua_pop(L, 2);
-        }
-        else
-            min = max = Eluna::CHECKVAL<uint32>(L, 2);
-        uint32 repeats = Eluna::CHECKVAL<uint32>(L, 3, 1);
+	int CreateLuaEvent(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TFUNCTION);
+		uint32 min, max;
+		if (lua_istable(L, 2))
+		{
+			lua_rawgeti(L, 2, 1); // Get first element from table at index 1
+			min = Eluna::CHECKVAL<uint32>(L, -1);
+			lua_rawgeti(L, 2, 2); // Get second element from table at index 2
+			max = Eluna::CHECKVAL<uint32>(L, -1);
+			lua_pop(L, 2); // Pop both values
+		}
+		else
+			min = max = Eluna::CHECKVAL<uint32>(L, 2);
+		uint32 repeats = Eluna::CHECKVAL<uint32>(L, 3, 1);
 
-        if (min > max)
-            return luaL_argerror(L, 2, "min is bigger than max delay");
+		if (min > max)
+			return luaL_argerror(L, 2, "min is bigger than max delay");
 
-        lua_pushvalue(L, 1);
-        int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
-        if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
-        {
-            Eluna::GetEluna(L)->eventMgr->globalProcessor->AddEvent(functionRef, min, max, repeats);
-            Eluna::Push(L, functionRef);
-        }
-        return 1;
-    }
+		lua_pushvalue(L, 1);
+		int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
+		if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
+		{
+			Eluna::GetEluna(L)->eventMgr->globalProcessor->AddEvent(functionRef, min, max, repeats);
+			Eluna::Push(L, functionRef);
+			return 1;
+		}
+		return 0; // No values left on stack
+	}
 
     /**
      * Removes a global timed event specified by ID.
