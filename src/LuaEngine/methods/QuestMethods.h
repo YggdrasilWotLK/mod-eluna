@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2016 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
@@ -8,6 +8,8 @@
 #define QUESTMETHODS_H
 
 /***
+ * Represents a quest in the game, including its objectives, rewards, and conditions.
+ *
  * Inherits all methods from: none
  */
 namespace LuaQuest
@@ -51,8 +53,8 @@ namespace LuaQuest
      */
     int HasFlag(lua_State* L, Quest* quest)
     {
-        uint32 flag = Eluna::CHECKVAL<uint32>(L, 2);
-        Eluna::Push(L, quest->HasFlag(flag));
+        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        ALE::Push(L, quest->HasFlag(flag));
         return 1;
     }
 
@@ -63,7 +65,7 @@ namespace LuaQuest
      */
     int IsDaily(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->IsDaily());
+        ALE::Push(L, quest->IsDaily());
         return 1;
     }
 
@@ -74,7 +76,7 @@ namespace LuaQuest
      */
     int IsRepeatable(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->IsRepeatable());
+        ALE::Push(L, quest->IsRepeatable());
         return 1;
     }
 
@@ -85,7 +87,7 @@ namespace LuaQuest
      */
     int GetId(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetQuestId());
+        ALE::Push(L, quest->GetQuestId());
         return 1;
     }
 
@@ -96,7 +98,7 @@ namespace LuaQuest
      */
     int GetLevel(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetQuestLevel());
+        ALE::Push(L, quest->GetQuestLevel());
         return 1;
     }
 
@@ -107,7 +109,7 @@ namespace LuaQuest
      */
     int GetMinLevel(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetMinLevel());
+        ALE::Push(L, quest->GetMinLevel());
         return 1;
     }
 
@@ -118,7 +120,7 @@ namespace LuaQuest
      */
     int GetNextQuestId(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetNextQuestId());
+        ALE::Push(L, quest->GetNextQuestId());
         return 1;
     }
 
@@ -129,7 +131,7 @@ namespace LuaQuest
      */
     int GetPrevQuestId(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetPrevQuestId());
+        ALE::Push(L, quest->GetPrevQuestId());
         return 1;
     }
 
@@ -140,7 +142,7 @@ namespace LuaQuest
      */
     int GetNextQuestInChain(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetNextQuestInChain());
+        ALE::Push(L, quest->GetNextQuestInChain());
         return 1;
     }
 
@@ -151,7 +153,7 @@ namespace LuaQuest
      */
     int GetFlags(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetFlags());
+        ALE::Push(L, quest->GetFlags());
         return 1;
     }
 
@@ -164,13 +166,13 @@ namespace LuaQuest
      */
     int GetType(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetType());
+        ALE::Push(L, quest->GetType());
         return 1;
     }
 
     /*int GetMaxLevel(lua_State* L, Quest* quest)
     {
-        Eluna::Push(L, quest->GetMaxLevel());
+        ALE::Push(L, quest->GetMaxLevel());
         return 1;
     }*/
 };

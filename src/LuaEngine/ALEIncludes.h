@@ -1,11 +1,11 @@
 /*
-* Copyright (C) 2010 - 2016 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef _ELUNA_INCLUDES_H
-#define _ELUNA_INCLUDES_H
+#ifndef _ALE_INCLUDES_H
+#define _ALE_INCLUDES_H
 
 // Required
 #include "AccountMgr.h"
@@ -44,7 +44,6 @@
 #include "GitRevision.h"
 #include "GroupMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
 #include "WeatherMgr.h"
 #include "Battleground.h"
 #include "MotionMaster.h"
@@ -74,4 +73,4 @@ typedef Opcodes                 OpcodesList;
 #define eGameEventMgr           (sGameEventMgr)
 #define eObjectAccessor()       ObjectAccessor::
 
-#endif // _ELUNA_INCLUDES_H
+#endif // _ALE_INCLUDES_H

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2016 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
@@ -9,6 +9,13 @@
 
 #include "Group.h"
 
+/***
+ * Represents a group loot roll session for an item, including player votes and roll statistics.
+ *
+ * Provides access to the item being rolled, player vote types, and counts of each roll type (Need, Greed, Pass).
+ *
+ * Inherits all methods from: none
+ */
 namespace LuaRoll
 {
     /**
@@ -18,7 +25,7 @@ namespace LuaRoll
      */
     int GetItemGUID(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->itemGUID.GetCounter());
+        ALE::Push(L, roll->itemGUID.GetCounter());
         return 1;
     }
 
@@ -29,7 +36,7 @@ namespace LuaRoll
      */
     int GetItemId(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->itemid);
+        ALE::Push(L, roll->itemid);
         return 1;
     }
 
@@ -40,7 +47,7 @@ namespace LuaRoll
      */
     int GetItemRandomPropId(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->itemRandomPropId);
+        ALE::Push(L, roll->itemRandomPropId);
         return 1;
     }
 
@@ -51,7 +58,7 @@ namespace LuaRoll
      */
     int GetItemRandomSuffix(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->itemRandomSuffix);
+        ALE::Push(L, roll->itemRandomSuffix);
         return 1;
     }
 
@@ -62,7 +69,7 @@ namespace LuaRoll
      */
     int GetItemCount(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->itemCount);
+        ALE::Push(L, roll->itemCount);
         return 1;
     }
 
@@ -87,21 +94,21 @@ namespace LuaRoll
      */
     int GetPlayerVote(lua_State* L, Roll* roll)
     {
-        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
 
         bool found = false;
         for (std::pair<const ObjectGuid, RollVote>& pair : roll->playerVote)
         {
             if (pair.first == guid)
             {
-                Eluna::Push(L, pair.second);
+                ALE::Push(L, pair.second);
                 found = true;
             }
         }
 
         if (!found)
         {
-            Eluna::Push(L);
+            ALE::Push(L);
         }
 
         return 1;
@@ -120,7 +127,7 @@ namespace LuaRoll
         uint32 i = 1;
         for (std::pair<const ObjectGuid, RollVote>& pair : roll->playerVote)
         {
-            Eluna::Push(L, pair.first);
+            ALE::Push(L, pair.first);
             lua_rawseti(L, table, i);
             ++i;
         }
@@ -136,7 +143,7 @@ namespace LuaRoll
      */
     int GetTotalPlayersRolling(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->totalPlayersRolling);
+        ALE::Push(L, roll->totalPlayersRolling);
         return 1;
     }
 
@@ -147,7 +154,7 @@ namespace LuaRoll
      */
     int GetTotalNeed(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->totalNeed);
+        ALE::Push(L, roll->totalNeed);
         return 1;
     }
 
@@ -158,7 +165,7 @@ namespace LuaRoll
      */
     int GetTotalGreed(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->totalGreed);
+        ALE::Push(L, roll->totalGreed);
         return 1;
     }
 
@@ -169,7 +176,7 @@ namespace LuaRoll
      */
     int GetTotalPass(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->totalPass);
+        ALE::Push(L, roll->totalPass);
         return 1;
     }
 
@@ -180,7 +187,7 @@ namespace LuaRoll
      */
     int GetItemSlot(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->itemSlot);
+        ALE::Push(L, roll->itemSlot);
         return 1;
     }
 
@@ -204,7 +211,7 @@ namespace LuaRoll
      */
     int GetRollVoteMask(lua_State* L, Roll* roll)
     {
-        Eluna::Push(L, roll->rollVoteMask);
+        ALE::Push(L, roll->rollVoteMask);
         return 1;
     }
 }

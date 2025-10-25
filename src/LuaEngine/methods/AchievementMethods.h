@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2016 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
@@ -7,6 +7,11 @@
 #ifndef ACHIEVEMENTMETHODS_H
 #define ACHIEVEMENTMETHODS_H
 
+/***
+ * Represents an entry from the game's achievement database (e.g., achievement earned for completing certain tasks).
+ *
+ * Inherits all methods from: none
+ */
 namespace LuaAchievement
 {
     /**
@@ -16,7 +21,7 @@ namespace LuaAchievement
      */
     int GetId(lua_State* L, AchievementEntry* const achievement)
     {
-        Eluna::Push(L, achievement->ID);
+        ALE::Push(L, achievement->ID);
         return 1;
     }
 
@@ -41,13 +46,13 @@ namespace LuaAchievement
      */
     int GetName(lua_State* L, AchievementEntry* const achievement)
     {
-        uint8 locale = Eluna::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
+        uint8 locale = ALE::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
         if (locale >= TOTAL_LOCALES)
         {
             return luaL_argerror(L, 2, "valid LocaleConstant expected");
         }
 
-        Eluna::Push(L, achievement->name[locale]);
+        ALE::Push(L, achievement->name[locale]);
         return 1;
     }
 };

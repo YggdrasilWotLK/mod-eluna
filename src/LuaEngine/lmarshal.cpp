@@ -1,7 +1,7 @@
 /*
  * lmarshal.c
  * A Lua library for serializing and deserializing Lua values
- * Richard Hundt <richardhundt@gmail.com>, Eluna Lua Engine <http://emudevs.com/>
+ * Richard Hundt <richardhundt@gmail.com>, Eluna Lua Engine <https://elunaluaengine.github.io/>
  *
  * License: MIT
  *
@@ -32,13 +32,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cstdint>
-#include "ElunaCompat.h"
+#include "ALECompat.h"
 
-extern "C" {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-}
+#if LUA_VERSION_NUM == 501 && !defined(luaL_setfuncs)
+    #define luaL_setfuncs(L, l, n) luaL_register(L, NULL, l)
+#endif
 
 #define MAR_TREF 1
 #define MAR_TVAL 2

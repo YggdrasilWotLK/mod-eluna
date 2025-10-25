@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2010 - 2024 Eluna Lua Engine <https://elunaluaengine.github.io/>
+ * Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
  * This program is free software licensed under GPL version 3
  * Please see the included DOCS/LICENSE.md for more information
  */
 
-#ifndef ELUNACOMPAT_H
-#define ELUNACOMPAT_H
+#ifndef ALECOMPAT_H
+#define ALECOMPAT_H
 
 extern "C"
 {
@@ -26,6 +26,10 @@ extern "C"
         lua_pushinteger(L, u)
     #define lua_load(L, buf_read, dec_buf, str, NULL) \
         lua_load(L, buf_read, dec_buf, str)
+
+    #ifndef LUA_OK
+        #define LUA_OK 0
+    #endif
 
 #if !defined LUAJIT_VERSION
     void* luaL_testudata(lua_State* L, int index, const char* tname);

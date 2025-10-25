@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2016 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
@@ -7,6 +7,13 @@
 #ifndef GEMPROPERTIESENTRYMETHODS_H
 #define GEMPROPERTIESENTRYMETHODS_H
 
+/***
+ * Represents static gem data used in item enhancement, including spell enchantments triggered by socketed gems.
+ *
+ * Provides access to gem-related properties from the DBC table `GemProperties.dbc`.
+ *
+ * Inherits all methods from: none
+ */
 namespace LuaGemPropertiesEntry
 {
 
@@ -20,7 +27,7 @@ namespace LuaGemPropertiesEntry
      */
     int GetId(lua_State* L, GemPropertiesEntry* gemProperties)
     {
-        Eluna::Push(L, gemProperties->ID);
+        ALE::Push(L, gemProperties->ID);
         return 1;
     }
 
@@ -33,7 +40,7 @@ namespace LuaGemPropertiesEntry
      */
     int GetSpellItemEnchantement(lua_State* L, GemPropertiesEntry* entry)
     {
-        Eluna::Push(L, entry->spellitemenchantement);
+        ALE::Push(L, entry->spellitemenchantement);
         return 1;
     }
 }

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2016 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
@@ -9,12 +9,12 @@ extern "C"
 #include "lua.h"
 };
 
-// Eluna
+// ALE
 #include "LuaEngine.h"
-#include "ElunaEventMgr.h"
-#include "ElunaIncludes.h"
-#include "ElunaTemplate.h"
-#include "ElunaUtility.h"
+#include "ALEEventMgr.h"
+#include "ALEIncludes.h"
+#include "ALETemplate.h"
+#include "ALEUtility.h"
 
 // Method includes
 #include "GlobalMethods.h"
@@ -26,7 +26,7 @@ extern "C"
 #include "GroupMethods.h"
 #include "GuildMethods.h"
 #include "GameObjectMethods.h"
-#include "ElunaQueryMethods.h"
+#include "ALEQueryMethods.h"
 #include "AuraMethods.h"
 #include "ItemMethods.h"
 #include "WorldPacketMethods.h"
@@ -42,6 +42,8 @@ extern "C"
 #include "RollMethods.h"
 #include "TicketMethods.h"
 #include "SpellInfoMethods.h"
+#include "PetMethods.h"
+#include "LootMethods.h"
 
 // DBCStores includes
 #include "GemPropertiesEntryMethods.h"
@@ -68,6 +70,8 @@ luaL_Reg GlobalMethods[] =
     { "RegisterInstanceEvent", &LuaGlobalFunctions::RegisterInstanceEvent },
     { "RegisterTicketEvent", &LuaGlobalFunctions::RegisterTicketEvent },
     { "RegisterSpellEvent", &LuaGlobalFunctions::RegisterSpellEvent },
+    { "RegisterAllCreatureEvent", &LuaGlobalFunctions::RegisterAllCreatureEvent },
+
 
     { "ClearBattleGroundEvents", &LuaGlobalFunctions::ClearBattleGroundEvents },
     { "ClearCreatureEvents", &LuaGlobalFunctions::ClearCreatureEvents },
@@ -87,10 +91,12 @@ luaL_Reg GlobalMethods[] =
     { "ClearInstanceEvents", &LuaGlobalFunctions::ClearInstanceEvents },
     { "ClearTicketEvents", &LuaGlobalFunctions::ClearTicketEvents },
     { "ClearSpellEvents", &LuaGlobalFunctions::ClearSpellEvents },
+    { "ClearAllCreatureEvents", &LuaGlobalFunctions::ClearAllCreatureEvents },
 
     // Getters
     { "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine },
     { "GetCoreName", &LuaGlobalFunctions::GetCoreName },
+    { "GetConfigValue", &LuaGlobalFunctions::GetConfigValue },
     { "GetRealmID", &LuaGlobalFunctions::GetRealmID },
     { "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion },
     { "GetCoreExpansion", &LuaGlobalFunctions::GetCoreExpansion },
@@ -113,6 +119,7 @@ luaL_Reg GlobalMethods[] =
     { "GetGUIDLow", &LuaGlobalFunctions::GetGUIDLow },
     { "GetGUIDType", &LuaGlobalFunctions::GetGUIDType },
     { "GetGUIDEntry", &LuaGlobalFunctions::GetGUIDEntry },
+    { "GetPackedGUIDSize", &LuaGlobalFunctions::GetPackedGUIDSize },
     { "GetAreaName", &LuaGlobalFunctions::GetAreaName },
     { "GetOwnerHalaa", &LuaGlobalFunctions::GetOwnerHalaa },
     { "bit_not", &LuaGlobalFunctions::bit_not },
@@ -142,7 +149,7 @@ luaL_Reg GlobalMethods[] =
     { "IsGameEventActive", &LuaGlobalFunctions::IsGameEventActive },
 
     // Other
-    { "ReloadEluna", &LuaGlobalFunctions::ReloadEluna },
+    { "ReloadALE", &LuaGlobalFunctions::ReloadALE },
     { "RunCommand", &LuaGlobalFunctions::RunCommand },
     { "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage },
     { "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery },
@@ -178,7 +185,7 @@ luaL_Reg GlobalMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Object> ObjectMethods[] =
+ALERegister<Object> ObjectMethods[] =
 {
     // Getters
     { "GetEntry", &LuaObject::GetEntry },
@@ -221,7 +228,7 @@ ElunaRegister<Object> ObjectMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<WorldObject> WorldObjectMethods[] =
+ALERegister<WorldObject> WorldObjectMethods[] =
 {
     // Getters
     { "GetName", &LuaWorldObject::GetName },
@@ -279,7 +286,7 @@ ElunaRegister<WorldObject> WorldObjectMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Unit> UnitMethods[] =
+ALERegister<Unit> UnitMethods[] =
 {
     // Getters
     { "GetLevel", &LuaUnit::GetLevel },
@@ -466,7 +473,7 @@ ElunaRegister<Unit> UnitMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Player> PlayerMethods[] =
+ALERegister<Player> PlayerMethods[] =
 {
     // Getters
     { "GetSelection", &LuaPlayer::GetSelection },
@@ -543,8 +550,17 @@ ElunaRegister<Player> PlayerMethods[] =
     { "GetPlayerSettingValue", &LuaPlayer::GetPlayerSettingValue },
     { "GetTrader", &LuaPlayer::GetTrader },
     { "GetBonusTalentCount", &LuaPlayer::GetBonusTalentCount },
+    { "GetKnownTaxiNodes", &LuaPlayer::GetKnownTaxiNodes },
+    { "GetPet", &LuaPlayer::GetPet },
+    { "GetTemporaryUnsummonedPetNumber", &LuaPlayer::GetTemporaryUnsummonedPetNumber },
+    { "GetLastPetNumber", &LuaPlayer::GetLastPetNumber },
+    { "GetLastPetSpell", &LuaPlayer::GetLastPetSpell },
 
     // Setters
+    { "SetTemporaryUnsummonedPetNumber", &LuaPlayer::SetTemporaryUnsummonedPetNumber },
+    { "SetLastPetNumber", &LuaPlayer::SetLastPetNumber },
+    { "SetLastPetSpell", &LuaPlayer::SetLastPetSpell },
+    { "SetShowDKPet", &LuaPlayer::SetShowDKPet },
     { "AdvanceSkillsToMax", &LuaPlayer::AdvanceSkillsToMax },
     { "AdvanceSkill", &LuaPlayer::AdvanceSkill },
     { "AdvanceAllSkills", &LuaPlayer::AdvanceAllSkills },
@@ -559,6 +575,7 @@ ElunaRegister<Player> PlayerMethods[] =
     { "SetLifetimeKills", &LuaPlayer::SetLifetimeKills },
     { "SetGameMaster", &LuaPlayer::SetGameMaster },
     { "SetGMChat", &LuaPlayer::SetGMChat },
+    { "SetKnownTaxiNodes", &LuaPlayer::SetKnownTaxiNodes },
     { "SetTaxiCheat", &LuaPlayer::SetTaxiCheat },
     { "SetGMVisible", &LuaPlayer::SetGMVisible },
     { "SetPvPDeath", &LuaPlayer::SetPvPDeath },
@@ -581,6 +598,21 @@ ElunaRegister<Player> PlayerMethods[] =
     { "RemoveBonusTalent", &LuaPlayer::RemoveBonusTalent },
     { "GetHomebind", &LuaPlayer::GetHomebind },
     { "GetSpells", &LuaPlayer::GetSpells },
+    { "GetAverageItemLevel", &LuaPlayer::GetAverageItemLevel },
+    { "GetBarberShopCost", &LuaPlayer::GetBarberShopCost },
+    { "GetSightRange", &LuaPlayer::GetSightRange },
+    { "GetWeaponProficiency", &LuaPlayer::GetWeaponProficiency },
+    { "GetArmorProficiency", &LuaPlayer::GetArmorProficiency },
+    { "GetAmmoDPS", &LuaPlayer::GetAmmoDPS },
+    { "GetShield", &LuaPlayer::GetShield },
+    { "GetRunesState", &LuaPlayer::GetRunesState },
+    { "GetViewpoint", &LuaPlayer::GetViewpoint },
+    { "GetDodgeFromAgility", &LuaPlayer::GetDodgeFromAgility },
+    { "GetMeleeCritFromAgility", &LuaPlayer::GetMeleeCritFromAgility },
+    { "GetSpellCritFromIntellect", &LuaPlayer::GetSpellCritFromIntellect },
+    { "GetInventoryItem", &LuaPlayer::GetInventoryItem },
+    { "GetBankItem", &LuaPlayer::GetBankItem },
+    { "GetCreationTime", &LuaPlayer::GetCreationTime },
 
     // Boolean
     { "HasTankSpec", &LuaPlayer::HasTankSpec },
@@ -652,6 +684,29 @@ ElunaRegister<Player> PlayerMethods[] =
     { "CanFly", &LuaPlayer::CanFly },
     { "IsMoving", &LuaPlayer::IsMoving },
     { "IsFlying", &LuaPlayer::IsFlying },
+    { "CanPetResurrect", &LuaPlayer::CanPetResurrect },
+    { "IsExistPet", &LuaPlayer::IsExistPet },
+    { "CanTameExoticPets", &LuaPlayer::CanTameExoticPets },
+    { "IsPetNeedBeTemporaryUnsummoned", &LuaPlayer::IsPetNeedBeTemporaryUnsummoned },
+    { "CanResummonPet", &LuaPlayer::CanResummonPet },
+    { "CanSeeDKPet", &LuaPlayer::CanSeeDKPet },
+    { "IsMaxLevel", &LuaPlayer::IsMaxLevel },
+    { "IsDailyQuestDone", &LuaPlayer::IsDailyQuestDone },
+    { "IsPvP", &LuaPlayer::IsPvP },
+    { "IsFFAPvP", &LuaPlayer::IsFFAPvP },
+    { "IsUsingLfg", &LuaPlayer::IsUsingLfg },
+    { "InRandomLfgDungeon", &LuaPlayer::InRandomLfgDungeon },
+    { "CanInteractWithQuestGiver", &LuaPlayer::CanInteractWithQuestGiver },
+    { "CanSeeStartQuest", &LuaPlayer::CanSeeStartQuest },
+    { "CanTakeQuest", &LuaPlayer::CanTakeQuest },
+    { "CanAddQuest", &LuaPlayer::CanAddQuest },
+    { "CalculateReputationGain", &LuaPlayer::CalculateReputationGain },
+    { "HasTitleByIndex", &LuaPlayer::HasTitleByIndex },
+    { "IsAtGroupRewardDistance", &LuaPlayer::IsAtGroupRewardDistance },
+    { "IsAtLootRewardDistance", &LuaPlayer::IsAtLootRewardDistance },
+    { "CanTeleport", &LuaPlayer::CanTeleport },
+    { "IsSpectator", &LuaPlayer::IsSpectator },
+    // { "HasSpellMod", &LuaPlayer::HasSpellMod },
 
     // Gossip
     { "GossipMenuAddItem", &LuaPlayer::GossipMenuAddItem },
@@ -753,11 +808,33 @@ ElunaRegister<Player> PlayerMethods[] =
     { "SendMovieStart", &LuaPlayer::SendMovieStart },
     { "UpdatePlayerSetting", &LuaPlayer::UpdatePlayerSetting },
     { "TeleportTo", &LuaPlayer::TeleportTo },
+    { "SummonPet", &LuaPlayer::SummonPet },
+    { "CreatePet", &LuaPlayer::CreatePet },
+    { "UnsummonPetTemporarily", &LuaPlayer::UnsummonPetTemporarily },
+    { "RemovePet", &LuaPlayer::RemovePet },
+    { "ResetPetTalents", &LuaPlayer::ResetPetTalents },
+    { "LearnPetTalent", &LuaPlayer::LearnPetTalent },
+    { "ResummonPetTemporaryUnSummonedIfAny", &LuaPlayer::ResummonPetTemporaryUnSummonedIfAny },
+    { "SetPlayerFlag", &LuaPlayer::SetPlayerFlag },
+    { "RemovePlayerFlag", &LuaPlayer::RemovePlayerFlag },
+    { "DoRandomRoll", &LuaPlayer::DoRandomRoll },
+    { "EnvironmentalDamage", &LuaPlayer::EnvironmentalDamage },
+    { "InitTaxiNodesForLevel", &LuaPlayer::InitTaxiNodesForLevel },
+    { "AbandonQuest", &LuaPlayer::AbandonQuest },
+    { "AddWeaponProficiency", &LuaPlayer::AddWeaponProficiency },
+    { "AddArmorProficiency", &LuaPlayer::AddArmorProficiency },
+    { "SetAmmo", &LuaPlayer::SetAmmo },
+    { "RemoveAmmo", &LuaPlayer::RemoveAmmo },
+    { "SetCanTeleport", &LuaPlayer::SetCanTeleport },
+    { "SetIsSpectator", &LuaPlayer::SetIsSpectator },
+    { "SetViewpoint", &LuaPlayer::SetViewpoint },
+    { "ToggleInstantFlight", &LuaPlayer::ToggleInstantFlight },
+    { "SetCreationTime", &LuaPlayer::SetCreationTime },
 
     { NULL, NULL }
 };
 
-ElunaRegister<Creature> CreatureMethods[] =
+ALERegister<Creature> CreatureMethods[] =
 {
     // Getters
     { "GetAITarget", &LuaCreature::GetAITarget },
@@ -774,6 +851,7 @@ ElunaRegister<Creature> CreatureMethods[] =
     { "GetRespawnDelay", &LuaCreature::GetRespawnDelay },
     { "GetWanderRadius", &LuaCreature::GetWanderRadius },
     { "GetCurrentWaypointId", &LuaCreature::GetCurrentWaypointId },
+    { "GetSpawnId", &LuaCreature::GetSpawnId },
     { "GetWaypointPath", &LuaCreature::GetWaypointPath },
     { "GetLootMode", &LuaCreature::GetLootMode },
     { "GetLootRecipient", &LuaCreature::GetLootRecipient },
@@ -786,12 +864,15 @@ ElunaRegister<Creature> CreatureMethods[] =
     { "GetShieldBlockValue", &LuaCreature::GetShieldBlockValue },
     { "GetDBTableGUIDLow", &LuaCreature::GetDBTableGUIDLow },
     { "GetCreatureFamily", &LuaCreature::GetCreatureFamily },
+    { "GetReactState", &LuaCreature::GetReactState },
+    { "GetLoot", &LuaCreature::GetLoot },
 
     // Setters
     { "SetRegeneratingHealth", &LuaCreature::SetRegeneratingHealth },
     { "SetHover", &LuaCreature::SetHover },
     { "SetDisableGravity", &LuaCreature::SetDisableGravity },
     { "SetAggroEnabled", &LuaCreature::SetAggroEnabled },
+    { "SetCorpseDelay", &LuaCreature::SetCorpseDelay },
     { "SetNoCallAssistance", &LuaCreature::SetNoCallAssistance },
     { "SetNoSearchAssistance", &LuaCreature::SetNoSearchAssistance },
     { "SetDefaultMovementType", &LuaCreature::SetDefaultMovementType },
@@ -857,7 +938,7 @@ ElunaRegister<Creature> CreatureMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<GameObject> GameObjectMethods[] =
+ALERegister<GameObject> GameObjectMethods[] =
 {
     // Getters
     { "GetDisplayId", &LuaGameObject::GetDisplayId },
@@ -865,7 +946,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     { "GetLootState", &LuaGameObject::GetLootState },
     { "GetLootRecipient", &LuaGameObject::GetLootRecipient },
     { "GetLootRecipientGroup", &LuaGameObject::GetLootRecipientGroup },
-    { "GetDBTableGUIDLow", &LuaGameObject::GetDBTableGUIDLow },
+    { "GetSpawnId", &LuaGameObject::GetSpawnId },
 
     // Setters
     { "SetGoState", &LuaGameObject::SetGoState },
@@ -891,7 +972,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Item> ItemMethods[] =
+ALERegister<Item> ItemMethods[] =
 {
     // Getters
     { "GetOwnerGUID", &LuaItem::GetOwnerGUID },
@@ -928,6 +1009,8 @@ ElunaRegister<Item> ItemMethods[] =
     { "SetOwner", &LuaItem::SetOwner },
     { "SetBinding", &LuaItem::SetBinding },
     { "SetCount", &LuaItem::SetCount },
+    { "SetRandomProperty", &LuaItem::SetRandomProperty },
+    { "SetRandomSuffix", &LuaItem::SetRandomSuffix },
 
     // Boolean
     { "IsSoulBound", &LuaItem::IsSoulBound },
@@ -958,7 +1041,7 @@ ElunaRegister<Item> ItemMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<ItemTemplate> ItemTemplateMethods[] =
+ALERegister<ItemTemplate> ItemTemplateMethods[] =
 {
     { "GetItemId", &LuaItemTemplate::GetItemId },
     { "GetClass", &LuaItemTemplate::GetClass },
@@ -980,7 +1063,7 @@ ElunaRegister<ItemTemplate> ItemTemplateMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Aura> AuraMethods[] =
+ALERegister<Aura> AuraMethods[] =
 {
     // Getters
     { "GetCaster", &LuaAura::GetCaster },
@@ -1003,7 +1086,7 @@ ElunaRegister<Aura> AuraMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Spell> SpellMethods[] =
+ALERegister<Spell> SpellMethods[] =
 {
     // Getters
     { "GetCaster", &LuaSpell::GetCaster },
@@ -1029,7 +1112,7 @@ ElunaRegister<Spell> SpellMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Quest> QuestMethods[] =
+ALERegister<Quest> QuestMethods[] =
 {
     // Getters
     { "GetId", &LuaQuest::GetId },
@@ -1050,7 +1133,7 @@ ElunaRegister<Quest> QuestMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Group> GroupMethods[] =
+ALERegister<Group> GroupMethods[] =
 {
     // Getters
     { "GetMembers", &LuaGroup::GetMembers },
@@ -1090,7 +1173,7 @@ ElunaRegister<Group> GroupMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Guild> GuildMethods[] =
+ALERegister<Guild> GuildMethods[] =
 {
     // Getters
     { "GetMembers", &LuaGuild::GetMembers },
@@ -1127,7 +1210,7 @@ ElunaRegister<Guild> GuildMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Vehicle> VehicleMethods[] =
+ALERegister<Vehicle> VehicleMethods[] =
 {
     // Getters
     { "GetOwner", &LuaVehicle::GetOwner },
@@ -1144,7 +1227,7 @@ ElunaRegister<Vehicle> VehicleMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<ElunaQuery> QueryMethods[] =
+ALERegister<ALEQuery> QueryMethods[] =
 {
     // Getters
     { "GetColumnCount", &LuaQuery::GetColumnCount },
@@ -1170,7 +1253,7 @@ ElunaRegister<ElunaQuery> QueryMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<WorldPacket> PacketMethods[] =
+ALERegister<WorldPacket> PacketMethods[] =
 {
     // Getters
     { "GetOpcode", &LuaPacket::GetOpcode },
@@ -1200,6 +1283,7 @@ ElunaRegister<WorldPacket> PacketMethods[] =
     { "WriteLong", &LuaPacket::WriteLong },
     { "WriteULong", &LuaPacket::WriteULong },
     { "WriteGUID", &LuaPacket::WriteGUID },
+    { "WritePackedGUID", &LuaPacket::WritePackedGUID },
     { "WriteString", &LuaPacket::WriteString },
     { "WriteFloat", &LuaPacket::WriteFloat },
     { "WriteDouble", &LuaPacket::WriteDouble },
@@ -1207,7 +1291,7 @@ ElunaRegister<WorldPacket> PacketMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Map> MapMethods[] =
+ALERegister<Map> MapMethods[] =
 {
     // Getters
     { "GetName", &LuaMap::GetName },
@@ -1241,7 +1325,7 @@ ElunaRegister<Map> MapMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Corpse> CorpseMethods[] =
+ALERegister<Corpse> CorpseMethods[] =
 {
     // Getters
     { "GetOwnerGUID", &LuaCorpse::GetOwnerGUID },
@@ -1255,12 +1339,12 @@ ElunaRegister<Corpse> CorpseMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<AuctionHouseEntry> AuctionMethods[] =
+ALERegister<AuctionHouseEntry> AuctionMethods[] =
 {
     { NULL, NULL }
 };
 
-ElunaRegister<BattleGround> BattleGroundMethods[] =
+ALERegister<BattleGround> BattleGroundMethods[] =
 {
     // Getters
     { "GetName", &LuaBattleGround::GetName },
@@ -1284,7 +1368,7 @@ ElunaRegister<BattleGround> BattleGroundMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<ChatHandler> ChatHandlerMethods[] =
+ALERegister<ChatHandler> ChatHandlerMethods[] =
 {
     { "SendSysMessage", &LuaChatHandler::SendSysMessage },
     { "IsConsole", &LuaChatHandler::IsConsole },
@@ -1304,7 +1388,7 @@ ElunaRegister<ChatHandler> ChatHandlerMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<AchievementEntry> AchievementMethods[] =
+ALERegister<AchievementEntry> AchievementMethods[] =
 {
     { "GetId", &LuaAchievement::GetId },
     { "GetName", &LuaAchievement::GetName },
@@ -1312,7 +1396,7 @@ ElunaRegister<AchievementEntry> AchievementMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<Roll> RollMethods[] =
+ALERegister<Roll> RollMethods[] =
 {
     { "GetItemGUID", &LuaRoll::GetItemGUID },
     { "GetItemId", &LuaRoll::GetItemId },
@@ -1331,7 +1415,7 @@ ElunaRegister<Roll> RollMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<GmTicket> TicketMethods[] =
+ALERegister<GmTicket> TicketMethods[] =
 {
     { "IsClosed", &LuaTicket::IsClosed },
     { "IsCompleted", &LuaTicket::IsCompleted },
@@ -1364,7 +1448,7 @@ ElunaRegister<GmTicket> TicketMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<SpellInfo> SpellInfoMethods[] =
+ALERegister<SpellInfo> SpellInfoMethods[] =
 {
     // Getters
     { "GetAttributes", &LuaSpellInfo::GetAttributes },
@@ -1435,7 +1519,7 @@ ElunaRegister<SpellInfo> SpellInfoMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<GemPropertiesEntry> GemPropertiesEntryMethods[] =
+ALERegister<GemPropertiesEntry> GemPropertiesEntryMethods[] =
 {
     // Getters
     { "GetId", &LuaGemPropertiesEntry::GetId },
@@ -1444,7 +1528,7 @@ ElunaRegister<GemPropertiesEntry> GemPropertiesEntryMethods[] =
     { NULL, NULL }
 };
 
-ElunaRegister<SpellEntry> SpellEntryMethods[] =
+ALERegister<SpellEntry> SpellEntryMethods[] =
 {
     // Getters
     { "GetId", &LuaSpellEntry::GetId },
@@ -1540,167 +1624,331 @@ ElunaRegister<SpellEntry> SpellEntryMethods[] =
     { "GetRuneCostID", &LuaSpellEntry::GetRuneCostID },
     { "GetEffectBonusMultiplier", &LuaSpellEntry::GetEffectBonusMultiplier },
 
+    // Setters
+    { "SetCategory", &LuaSpellEntry::SetCategory },
+    { "SetDispel", &LuaSpellEntry::SetDispel },
+    { "SetMechanic", &LuaSpellEntry::SetMechanic },
+    { "SetAttributes", &LuaSpellEntry::SetAttributes },
+    { "SetAttributesEx", &LuaSpellEntry::SetAttributesEx },
+    { "SetAttributesEx2", &LuaSpellEntry::SetAttributesEx2 },
+    { "SetAttributesEx3", &LuaSpellEntry::SetAttributesEx3 },
+    { "SetAttributesEx4", &LuaSpellEntry::SetAttributesEx4 },
+    { "SetAttributesEx5", &LuaSpellEntry::SetAttributesEx5 },
+    { "SetAttributesEx6", &LuaSpellEntry::SetAttributesEx6 },
+    { "SetAttributesEx7", &LuaSpellEntry::SetAttributesEx7 },
+    { "SetStances", &LuaSpellEntry::SetStances },
+    { "SetStancesNot", &LuaSpellEntry::SetStancesNot },
+    { "SetTargets", &LuaSpellEntry::SetTargets },
+    { "SetTargetCreatureType", &LuaSpellEntry::SetTargetCreatureType },
+    { "SetRequiresSpellFocus", &LuaSpellEntry::SetRequiresSpellFocus },
+    { "SetFacingCasterFlags", &LuaSpellEntry::SetFacingCasterFlags },
+    { "SetCasterAuraState", &LuaSpellEntry::SetCasterAuraState },
+    { "SetTargetAuraState", &LuaSpellEntry::SetTargetAuraState },
+    { "SetCasterAuraStateNot", &LuaSpellEntry::SetCasterAuraStateNot },
+    { "SetTargetAuraStateNot", &LuaSpellEntry::SetTargetAuraStateNot },
+    { "SetCasterAuraSpell", &LuaSpellEntry::SetCasterAuraSpell },
+    { "SetTargetAuraSpell", &LuaSpellEntry::SetTargetAuraSpell },
+    { "SetExcludeCasterAuraSpell", &LuaSpellEntry::SetExcludeCasterAuraSpell },
+    { "SetExcludeTargetAuraSpell", &LuaSpellEntry::SetExcludeTargetAuraSpell },
+    { "SetRecoveryTime", &LuaSpellEntry::SetRecoveryTime },
+    { "SetCategoryRecoveryTime", &LuaSpellEntry::SetCategoryRecoveryTime },
+    { "SetInterruptFlags", &LuaSpellEntry::SetInterruptFlags },
+    { "SetAuraInterruptFlags", &LuaSpellEntry::SetAuraInterruptFlags },
+    { "SetChannelInterruptFlags", &LuaSpellEntry::SetChannelInterruptFlags },
+    { "SetProcFlags", &LuaSpellEntry::SetProcFlags },
+    { "SetProcChance", &LuaSpellEntry::SetProcChance },
+    { "SetProcCharges", &LuaSpellEntry::SetProcCharges },
+    { "SetMaxLevel", &LuaSpellEntry::SetMaxLevel },
+    { "SetBaseLevel", &LuaSpellEntry::SetBaseLevel },
+    { "SetSpellLevel", &LuaSpellEntry::SetSpellLevel },
+    { "SetPowerType", &LuaSpellEntry::SetPowerType },
+    { "SetManaCost", &LuaSpellEntry::SetManaCost },
+    { "SetManaCostPerlevel", &LuaSpellEntry::SetManaCostPerlevel },
+    { "SetManaPerSecond", &LuaSpellEntry::SetManaPerSecond },
+    { "SetManaPerSecondPerLevel", &LuaSpellEntry::SetManaPerSecondPerLevel },
+    { "SetSpeed", &LuaSpellEntry::SetSpeed },
+    { "SetStackAmount", &LuaSpellEntry::SetStackAmount },
+    { "SetEquippedItemClass", &LuaSpellEntry::SetEquippedItemClass },
+    { "SetEquippedItemSubClassMask", &LuaSpellEntry::SetEquippedItemSubClassMask },
+    { "SetEquippedItemInventoryTypeMask", &LuaSpellEntry::SetEquippedItemInventoryTypeMask },
+    { "SetSpellIconID", &LuaSpellEntry::SetSpellIconID },
+    { "SetActiveIconID", &LuaSpellEntry::SetActiveIconID },
+    { "SetSpellPriority", &LuaSpellEntry::SetSpellPriority },
+    { "SetManaCostPercentage", &LuaSpellEntry::SetManaCostPercentage },
+    { "SetStartRecoveryCategory", &LuaSpellEntry::SetStartRecoveryCategory },
+    { "SetStartRecoveryTime", &LuaSpellEntry::SetStartRecoveryTime },
+    { "SetMaxTargetLevel", &LuaSpellEntry::SetMaxTargetLevel },
+    { "SetSpellFamilyName", &LuaSpellEntry::SetSpellFamilyName },
+    { "SetMaxAffectedTargets", &LuaSpellEntry::SetMaxAffectedTargets },
+    { "SetDmgClass", &LuaSpellEntry::SetDmgClass },
+    { "SetPreventionType", &LuaSpellEntry::SetPreventionType },
+    { "SetSchoolMask", &LuaSpellEntry::SetSchoolMask },
+    { "SetRuneCostID", &LuaSpellEntry::SetRuneCostID },
+
+    { NULL, NULL }
+};
+
+ALERegister<Pet> PetMethods[] =
+{
+    // Getters
+    { "GetPetType", &LuaPet::GetPetType },
+    { "GetDuration", &LuaPet::GetDuration },
+    { "GetHappinessState", &LuaPet::GetHappinessState },
+    { "GetCurrentFoodBenefitLevel", &LuaPet::GetCurrentFoodBenefitLevel },
+    { "GetMaxTalentPointsForLevel", &LuaPet::GetMaxTalentPointsForLevel },
+    { "GetFreeTalentPoints", &LuaPet::GetFreeTalentPoints },
+    { "GetUsedTalentCount", &LuaPet::GetUsedTalentCount },
+    { "GetAuraUpdateMaskForRaid", &LuaPet::GetAuraUpdateMaskForRaid },
+    { "GetOwner", &LuaPet::GetOwner },
+    { "GetPetAutoSpellSize", &LuaPet::GetPetAutoSpellSize },
+    { "GetPetAutoSpellOnPos", &LuaPet::GetPetAutoSpellOnPos },
+
+    // Setters
+    { "SetPetType", &LuaPet::SetPetType },
+    { "SetDuration", &LuaPet::SetDuration },
+    { "SetFreeTalentPoints", &LuaPet::SetFreeTalentPoints },
+    { "SetUsedTalentCount", &LuaPet::SetUsedTalentCount },
+    { "SetAuraUpdateMaskForRaid", &LuaPet::SetAuraUpdateMaskForRaid },
+    { "SetRemoved", &LuaPet::SetRemoved },
+
+    // Boolean
+    { "IsControlled", &LuaPet::IsControlled },
+    { "IsTemporarySummoned", &LuaPet::IsTemporarySummoned },
+    { "IsPermanentPetFor", &LuaPet::IsPermanentPetFor },
+    { "HaveInDiet", &LuaPet::HaveInDiet },
+    { "HasTempSpell", &LuaPet::HasTempSpell },
+    { "IsRemoved", &LuaPet::IsRemoved },
+    { "IsBeingLoaded", &LuaPet::IsBeingLoaded },
+
+    // Other
+    { "CreateBaseAtCreature", &LuaPet::CreateBaseAtCreature },
+    { "GivePetXP", &LuaPet::GivePetXP },
+    { "GivePetLevel", &LuaPet::GivePetLevel },
+    { "SynchronizeLevelWithOwner", &LuaPet::SynchronizeLevelWithOwner },
+    { "ToggleAutocast", &LuaPet::ToggleAutocast },
+    { "LearnPetPassives", &LuaPet::LearnPetPassives },
+    { "CastWhenWillAvailable", &LuaPet::CastWhenWillAvailable },
+    { "ClearCastWhenWillAvailable", &LuaPet::ClearCastWhenWillAvailable },
+    { "AddSpell", &LuaPet::AddSpell },
+    { "LearnSpell", &LuaPet::LearnSpell },
+    { "LearnSpellHighRank", &LuaPet::LearnSpellHighRank },
+    { "InitLevelupSpellsForLevel", &LuaPet::InitLevelupSpellsForLevel },
+    { "UnlearnSpell", &LuaPet::UnlearnSpell },
+    { "RemoveSpell", &LuaPet::RemoveSpell },
+    { "CleanupActionBar", &LuaPet::CleanupActionBar },
+    { "GenerateActionBarData", &LuaPet::GenerateActionBarData },
+    { "InitPetCreateSpells", &LuaPet::InitPetCreateSpells },
+    { "ResetTalents", &LuaPet::ResetTalents },
+    { "InitTalentForLevel", &LuaPet::InitTalentForLevel },
+    { "ResetAuraUpdateMaskForRaid", &LuaPet::ResetAuraUpdateMaskForRaid },
+    { "SavePetToDB", &LuaPet::SavePetToDB },
+    { "Remove", &LuaPet::Remove },
+
+    { NULL, NULL }
+};
+
+ALERegister<Loot> LootMethods[] =
+{
+    // Get
+    { "GetMoney", &LuaLoot::GetMoney },
+    { "GetItems", &LuaLoot::GetItems },
+    { "GetQuestItems", &LuaLoot::GetQuestItems },
+    { "GetUnlootedCount", &LuaLoot::GetUnlootedCount },
+    { "GetLootType", &LuaLoot::GetLootType },
+    { "GetRoundRobinPlayer", &LuaLoot::GetRoundRobinPlayer },
+    { "GetLootOwner", &LuaLoot::GetLootOwner },
+    { "GetContainer", &LuaLoot::GetContainer },
+    { "GetSourceWorldObject", &LuaLoot::GetSourceWorldObject },
+    { "GetItemCount", &LuaLoot::GetItemCount },
+    { "GetMaxSlotForPlayer", &LuaLoot::GetMaxSlotForPlayer },
+
+    // Set
+    { "AddItem", &LuaLoot::AddItem },
+    { "RemoveItem", &LuaLoot::RemoveItem },
+    { "SetMoney", &LuaLoot::SetMoney },
+    { "SetUnlootedCount", &LuaLoot::SetUnlootedCount },
+    { "UpdateItemIndex", &LuaLoot::UpdateItemIndex },
+    { "SetItemLooted", &LuaLoot::SetItemLooted },
+    { "SetLootType", &LuaLoot::SetLootType },
+    { "SetRoundRobinPlayer", &LuaLoot::SetRoundRobinPlayer },
+    { "SetLootOwner", &LuaLoot::SetLootOwner },
+    { "SetContainer", &LuaLoot::SetContainer },
+    { "SetSourceWorldObject", &LuaLoot::SetSourceWorldObject },
+    { "Clear", &LuaLoot::Clear },
+    { "AddLooter", &LuaLoot::AddLooter },
+    { "RemoveLooter", &LuaLoot::RemoveLooter },
+
+    // Boolean
+    { "HasItem", &LuaLoot::HasItem },
+    { "HasQuestItems", &LuaLoot::HasQuestItems },
+    { "HasItemForAll", &LuaLoot::HasItemForAll },
+    { "HasOverThresholdItem", &LuaLoot::HasOverThresholdItem },
+    { "IsLooted", &LuaLoot::IsLooted },
+    { "IsEmpty", &LuaLoot::IsEmpty },
+
     { NULL, NULL }
 };
 
 // fix compile error about accessing vehicle destructor
-template<> int ElunaTemplate<Vehicle>::CollectGarbage(lua_State* L)
+template<> int ALETemplate<Vehicle>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
     // Get object pointer (and check type, no error)
-    ElunaObject* obj = Eluna::CHECKOBJ<ElunaObject>(L, 1, false);
+    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
     delete obj;
     return 0;
 }
 
 // Template by Mud from http://stackoverflow.com/questions/4484437/lua-integer-type/4485511#4485511
-template<> int ElunaTemplate<unsigned long long>::Add(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) + Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::Substract(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) - Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::Multiply(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) * Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::Divide(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) / Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::Mod(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) % Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-// template<> int ElunaTemplate<unsigned long long>::UnaryMinus(lua_State* L) { Eluna::Push(L, -Eluna::CHECKVAL<unsigned long long>(L, 1)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::Equal(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) == Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::Less(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) < Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::LessOrEqual(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<unsigned long long>(L, 1) <= Eluna::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<unsigned long long>::Pow(lua_State* L)
+template<> int ALETemplate<unsigned long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) + ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int ALETemplate<unsigned long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) - ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int ALETemplate<unsigned long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) * ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int ALETemplate<unsigned long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) / ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int ALETemplate<unsigned long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) % ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+// template<> int ALETemplate<unsigned long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<unsigned long long>(L, 1)); return 1; }
+template<> int ALETemplate<unsigned long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) == ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int ALETemplate<unsigned long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) < ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int ALETemplate<unsigned long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) <= ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int ALETemplate<unsigned long long>::Pow(lua_State* L)
 {
-    Eluna::Push(L, static_cast<unsigned long long>(powl(static_cast<long double>(Eluna::CHECKVAL<unsigned long long>(L, 1)), static_cast<long double>(Eluna::CHECKVAL<unsigned long long>(L, 2)))));
+    ALE::Push(L, static_cast<unsigned long long>(powl(static_cast<long double>(ALE::CHECKVAL<unsigned long long>(L, 1)), static_cast<long double>(ALE::CHECKVAL<unsigned long long>(L, 2)))));
     return 1;
 }
-template<> int ElunaTemplate<unsigned long long>::ToString(lua_State* L)
+template<> int ALETemplate<unsigned long long>::ToString(lua_State* L)
 {
-    unsigned long long l = Eluna::CHECKVAL<unsigned long long>(L, 1);
+    unsigned long long l = ALE::CHECKVAL<unsigned long long>(L, 1);
     std::ostringstream ss;
     ss << l;
-    Eluna::Push(L, ss.str());
+    ALE::Push(L, ss.str());
     return 1;
 }
 
-template<> int ElunaTemplate<long long>::Add(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) + Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::Substract(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) - Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::Multiply(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) * Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::Divide(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) / Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::Mod(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) % Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::UnaryMinus(lua_State* L) { Eluna::Push(L, -Eluna::CHECKVAL<long long>(L, 1)); return 1; }
-template<> int ElunaTemplate<long long>::Equal(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) == Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::Less(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) < Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::LessOrEqual(lua_State* L) { Eluna::Push(L, Eluna::CHECKVAL<long long>(L, 1) <= Eluna::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ElunaTemplate<long long>::Pow(lua_State* L)
+template<> int ALETemplate<long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) + ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) - ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) * ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) / ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) % ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<long long>(L, 1)); return 1; }
+template<> int ALETemplate<long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) == ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) < ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) <= ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int ALETemplate<long long>::Pow(lua_State* L)
 {
-    Eluna::Push(L, static_cast<long long>(powl(static_cast<long double>(Eluna::CHECKVAL<long long>(L, 1)), static_cast<long double>(Eluna::CHECKVAL<long long>(L, 2)))));
+    ALE::Push(L, static_cast<long long>(powl(static_cast<long double>(ALE::CHECKVAL<long long>(L, 1)), static_cast<long double>(ALE::CHECKVAL<long long>(L, 2)))));
     return 1;
 }
-template<> int ElunaTemplate<long long>::ToString(lua_State* L)
+template<> int ALETemplate<long long>::ToString(lua_State* L)
 {
-    long long l = Eluna::CHECKVAL<long long>(L, 1);
+    long long l = ALE::CHECKVAL<long long>(L, 1);
     std::ostringstream ss;
     ss << l;
-    Eluna::Push(L, ss.str());
+    ALE::Push(L, ss.str());
     return 1;
 }
 
-void RegisterFunctions(Eluna* E)
+void RegisterFunctions(ALE* E)
 {
-    ElunaGlobal::SetMethods(E, GlobalMethods);
+    ALEGlobal::SetMethods(E, GlobalMethods);
 
-    ElunaTemplate<Object>::Register(E, "Object");
-    ElunaTemplate<Object>::SetMethods(E, ObjectMethods);
+    ALETemplate<Object>::Register(E, "Object");
+    ALETemplate<Object>::SetMethods(E, ObjectMethods);
 
-    ElunaTemplate<WorldObject>::Register(E, "WorldObject");
-    ElunaTemplate<WorldObject>::SetMethods(E, ObjectMethods);
-    ElunaTemplate<WorldObject>::SetMethods(E, WorldObjectMethods);
+    ALETemplate<WorldObject>::Register(E, "WorldObject");
+    ALETemplate<WorldObject>::SetMethods(E, ObjectMethods);
+    ALETemplate<WorldObject>::SetMethods(E, WorldObjectMethods);
 
-    ElunaTemplate<Unit>::Register(E, "Unit");
-    ElunaTemplate<Unit>::SetMethods(E, ObjectMethods);
-    ElunaTemplate<Unit>::SetMethods(E, WorldObjectMethods);
-    ElunaTemplate<Unit>::SetMethods(E, UnitMethods);
+    ALETemplate<Unit>::Register(E, "Unit");
+    ALETemplate<Unit>::SetMethods(E, ObjectMethods);
+    ALETemplate<Unit>::SetMethods(E, WorldObjectMethods);
+    ALETemplate<Unit>::SetMethods(E, UnitMethods);
 
-    ElunaTemplate<Player>::Register(E, "Player");
-    ElunaTemplate<Player>::SetMethods(E, ObjectMethods);
-    ElunaTemplate<Player>::SetMethods(E, WorldObjectMethods);
-    ElunaTemplate<Player>::SetMethods(E, UnitMethods);
-    ElunaTemplate<Player>::SetMethods(E, PlayerMethods);
+    ALETemplate<Player>::Register(E, "Player");
+    ALETemplate<Player>::SetMethods(E, ObjectMethods);
+    ALETemplate<Player>::SetMethods(E, WorldObjectMethods);
+    ALETemplate<Player>::SetMethods(E, UnitMethods);
+    ALETemplate<Player>::SetMethods(E, PlayerMethods);
 
-    ElunaTemplate<Creature>::Register(E, "Creature");
-    ElunaTemplate<Creature>::SetMethods(E, ObjectMethods);
-    ElunaTemplate<Creature>::SetMethods(E, WorldObjectMethods);
-    ElunaTemplate<Creature>::SetMethods(E, UnitMethods);
-    ElunaTemplate<Creature>::SetMethods(E, CreatureMethods);
+    ALETemplate<Creature>::Register(E, "Creature");
+    ALETemplate<Creature>::SetMethods(E, ObjectMethods);
+    ALETemplate<Creature>::SetMethods(E, WorldObjectMethods);
+    ALETemplate<Creature>::SetMethods(E, UnitMethods);
+    ALETemplate<Creature>::SetMethods(E, CreatureMethods);
 
-    ElunaTemplate<GameObject>::Register(E, "GameObject");
-    ElunaTemplate<GameObject>::SetMethods(E, ObjectMethods);
-    ElunaTemplate<GameObject>::SetMethods(E, WorldObjectMethods);
-    ElunaTemplate<GameObject>::SetMethods(E, GameObjectMethods);
+    ALETemplate<GameObject>::Register(E, "GameObject");
+    ALETemplate<GameObject>::SetMethods(E, ObjectMethods);
+    ALETemplate<GameObject>::SetMethods(E, WorldObjectMethods);
+    ALETemplate<GameObject>::SetMethods(E, GameObjectMethods);
 
-    ElunaTemplate<Corpse>::Register(E, "Corpse");
-    ElunaTemplate<Corpse>::SetMethods(E, ObjectMethods);
-    ElunaTemplate<Corpse>::SetMethods(E, WorldObjectMethods);
-    ElunaTemplate<Corpse>::SetMethods(E, CorpseMethods);
+    ALETemplate<Corpse>::Register(E, "Corpse");
+    ALETemplate<Corpse>::SetMethods(E, ObjectMethods);
+    ALETemplate<Corpse>::SetMethods(E, WorldObjectMethods);
+    ALETemplate<Corpse>::SetMethods(E, CorpseMethods);
 
-    ElunaTemplate<Item>::Register(E, "Item");
-    ElunaTemplate<Item>::SetMethods(E, ObjectMethods);
-    ElunaTemplate<Item>::SetMethods(E, ItemMethods);
+    ALETemplate<Item>::Register(E, "Item");
+    ALETemplate<Item>::SetMethods(E, ObjectMethods);
+    ALETemplate<Item>::SetMethods(E, ItemMethods);
 
-    ElunaTemplate<ItemTemplate>::Register(E, "ItemTemplate");
-    ElunaTemplate<ItemTemplate>::SetMethods(E, ItemTemplateMethods);
+    ALETemplate<ItemTemplate>::Register(E, "ItemTemplate");
+    ALETemplate<ItemTemplate>::SetMethods(E, ItemTemplateMethods);
 
-    ElunaTemplate<Vehicle>::Register(E, "Vehicle");
-    ElunaTemplate<Vehicle>::SetMethods(E, VehicleMethods);
+    ALETemplate<Vehicle>::Register(E, "Vehicle");
+    ALETemplate<Vehicle>::SetMethods(E, VehicleMethods);
 
-    ElunaTemplate<Group>::Register(E, "Group");
-    ElunaTemplate<Group>::SetMethods(E, GroupMethods);
+    ALETemplate<Group>::Register(E, "Group");
+    ALETemplate<Group>::SetMethods(E, GroupMethods);
 
-    ElunaTemplate<Guild>::Register(E, "Guild");
-    ElunaTemplate<Guild>::SetMethods(E, GuildMethods);
+    ALETemplate<Guild>::Register(E, "Guild");
+    ALETemplate<Guild>::SetMethods(E, GuildMethods);
 
-    ElunaTemplate<Aura>::Register(E, "Aura");
-    ElunaTemplate<Aura>::SetMethods(E, AuraMethods);
+    ALETemplate<Aura>::Register(E, "Aura");
+    ALETemplate<Aura>::SetMethods(E, AuraMethods);
 
-    ElunaTemplate<Spell>::Register(E, "Spell");
-    ElunaTemplate<Spell>::SetMethods(E, SpellMethods);
+    ALETemplate<Spell>::Register(E, "Spell");
+    ALETemplate<Spell>::SetMethods(E, SpellMethods);
 
-    ElunaTemplate<Quest>::Register(E, "Quest");
-    ElunaTemplate<Quest>::SetMethods(E, QuestMethods);
+    ALETemplate<Quest>::Register(E, "Quest");
+    ALETemplate<Quest>::SetMethods(E, QuestMethods);
 
-    ElunaTemplate<Map>::Register(E, "Map");
-    ElunaTemplate<Map>::SetMethods(E, MapMethods);
+    ALETemplate<Map>::Register(E, "Map");
+    ALETemplate<Map>::SetMethods(E, MapMethods);
 
-    ElunaTemplate<AuctionHouseEntry>::Register(E, "AuctionHouseEntry");
-    ElunaTemplate<AuctionHouseEntry>::SetMethods(E, AuctionMethods);
+    ALETemplate<AuctionHouseEntry>::Register(E, "AuctionHouseEntry");
+    ALETemplate<AuctionHouseEntry>::SetMethods(E, AuctionMethods);
 
-    ElunaTemplate<BattleGround>::Register(E, "BattleGround");
-    ElunaTemplate<BattleGround>::SetMethods(E, BattleGroundMethods);
+    ALETemplate<BattleGround>::Register(E, "BattleGround");
+    ALETemplate<BattleGround>::SetMethods(E, BattleGroundMethods);
 
-    ElunaTemplate<ChatHandler>::Register(E, "ChatHandler");
-    ElunaTemplate<ChatHandler>::SetMethods(E, ChatHandlerMethods);
+    ALETemplate<ChatHandler>::Register(E, "ChatHandler");
+    ALETemplate<ChatHandler>::SetMethods(E, ChatHandlerMethods);
 
-    ElunaTemplate<WorldPacket>::Register(E, "WorldPacket", true);
-    ElunaTemplate<WorldPacket>::SetMethods(E, PacketMethods);
+    ALETemplate<WorldPacket>::Register(E, "WorldPacket", true);
+    ALETemplate<WorldPacket>::SetMethods(E, PacketMethods);
 
-    ElunaTemplate<ElunaQuery>::Register(E, "ElunaQuery", true);
-    ElunaTemplate<ElunaQuery>::SetMethods(E, QueryMethods);
+    ALETemplate<ALEQuery>::Register(E, "ALEQuery", true);
+    ALETemplate<ALEQuery>::SetMethods(E, QueryMethods);
 
-    ElunaTemplate<AchievementEntry>::Register(E, "AchievementEntry");
-    ElunaTemplate<AchievementEntry>::SetMethods(E, AchievementMethods);
+    ALETemplate<AchievementEntry>::Register(E, "AchievementEntry");
+    ALETemplate<AchievementEntry>::SetMethods(E, AchievementMethods);
 
-    ElunaTemplate<Roll>::Register(E, "Roll");
-    ElunaTemplate<Roll>::SetMethods(E, RollMethods);
+    ALETemplate<Roll>::Register(E, "Roll");
+    ALETemplate<Roll>::SetMethods(E, RollMethods);
 
-    ElunaTemplate<GmTicket>::Register(E, "Ticket");
-    ElunaTemplate<GmTicket>::SetMethods(E, TicketMethods);
-  
-    ElunaTemplate<SpellInfo>::Register(E, "SpellInfo");
-    ElunaTemplate<SpellInfo>::SetMethods(E, SpellInfoMethods);
+    ALETemplate<GmTicket>::Register(E, "Ticket");
+    ALETemplate<GmTicket>::SetMethods(E, TicketMethods);
 
-    ElunaTemplate<GemPropertiesEntry>::Register(E, "GemPropertiesEntry");
-    ElunaTemplate<GemPropertiesEntry>::SetMethods(E, GemPropertiesEntryMethods);
+    ALETemplate<SpellInfo>::Register(E, "SpellInfo");
+    ALETemplate<SpellInfo>::SetMethods(E, SpellInfoMethods);
 
-    ElunaTemplate<SpellEntry>::Register(E, "SpellEntry");
-    ElunaTemplate<SpellEntry>::SetMethods(E, SpellEntryMethods);
+    ALETemplate<GemPropertiesEntry>::Register(E, "GemPropertiesEntry");
+    ALETemplate<GemPropertiesEntry>::SetMethods(E, GemPropertiesEntryMethods);
 
-    ElunaTemplate<long long>::Register(E, "long long", true);
+    ALETemplate<SpellEntry>::Register(E, "SpellEntry");
+    ALETemplate<SpellEntry>::SetMethods(E, SpellEntryMethods);
 
-    ElunaTemplate<unsigned long long>::Register(E, "unsigned long long", true);
+    ALETemplate<CreatureTemplate>::Register(E, "CreatureTemplate");
+
+    ALETemplate<long long>::Register(E, "long long", true);
+
+    ALETemplate<unsigned long long>::Register(E, "unsigned long long", true);
 }
