@@ -156,14 +156,12 @@ void ALE::_ReloadALE()
     LOCK_ALE;
     ASSERT(IsInitialized());
 
-    if (!sEluna->CanReload())
+    if (!sALE->CanReload())
     {
-        sEluna->reloadScheduled = true;
+        sALE->reloadScheduled = true;
         return;
     }
     
-    if (eConfigMgr->GetOption<bool>("Eluna.PlayerAnnounceReload", false))
-        eWorldSessionMgr->SendServerMessage(SERVER_MSG_STRING, "Reloading Eluna...");
     if (eConfigMgr->GetOption<bool>("ALE.PlayerAnnounceReload", false))
         eWorldSessionMgr->SendServerMessage(SERVER_MSG_STRING, "Reloading ALE...");
     else
@@ -184,7 +182,7 @@ void ALE::_ReloadALE()
     // Run scripts from laoded paths
     sALE->RunScripts();
 
-	sEluna->reloadScheduled = false;
+	sALE->reloadScheduled = false;
     reload = false;
 }
 

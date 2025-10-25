@@ -1414,8 +1414,8 @@ namespace LuaGlobalFunctions
             return 0;
         }
    
-	   // Increment pending callbacks counter
-	   Eluna::GEluna->IncrementCallbacks();
+	    // Increment pending callbacks counter
+        ALE::GALE->IncrementCallbacks();
 
         ALE::GALE->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([L, funcRef](QueryResult result)
             {
@@ -1435,7 +1435,7 @@ namespace LuaGlobalFunctions
                 luaL_unref(L, LUA_REGISTRYINDEX, funcRef);
 				
 			   // Decrement pending callbacks counter
-			   Eluna::GEluna->DecrementCallbacks();
+			   ALE::GALE->DecrementCallbacks();
             }));
 
         return 0;

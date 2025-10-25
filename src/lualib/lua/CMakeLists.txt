@@ -83,8 +83,7 @@ else()
 endif()
 
 set_target_properties(lualib PROPERTIES LINKER_LANGUAGE C)
-set_target_properties(lualib_static PROPERTIES LINKER_LANGUAGE C)
-add_dependencies(lualib_static lualib)
+
 target_include_directories(lualib PUBLIC "${LUA_SOURCE_FOLDER}" "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if (WIN32)
